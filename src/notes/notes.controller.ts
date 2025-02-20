@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards,Request, Req } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards,Request, Req, HttpStatus, Patch } from '@nestjs/common';
 import { NotesService } from './notes.service';
 import { Notes } from '../../entities/notes.entity';
 import { CreateNoteDto } from './dto/create-note.dto';
@@ -11,6 +11,7 @@ export class NotesController {
     constructor(private readonly notesService: NotesService) {}
 
     @Post()
+    
     async createNote(@Body() createNoteDto: CreateNoteDto,@Request() req): Promise<Notes> {
         const userId=req.user.userId;
         return await this.notesService.createNote(createNoteDto,userId);
@@ -27,8 +28,19 @@ export class NotesController {
         const userId=req.user.userId;
         return await this.notesService.getNoteById(id,userId);
     }
+   
+    @Post(':folderId/note')
+    async createFolderSpecificNote(@Param('folderId') folderId:string,@Request() req,createNoteDto:CreateNoteDto):Promise<Notes>{
+        const userId=req.user.userId;
+        return await this.notesService.createFolderSpecificNotes(folderId,userId,createNoteDto);
+    }
+    @Get(':folderId/notes')
+    async getAllNotesFolderSpecific(@Param('folderId') folderId:string,@Request() req):Promise<Notes[]>{
+        const userId=req.user.userId;
+        return await this.notesService.getAllNotesFolderSpecific(folderId,userId);
 
-    @Put(':id')
+    }
+    @Patch(':id')
     async updateNote(
         @Param('id') id: string,
         @Body() updateNoteDto: UpdateNoteDto,

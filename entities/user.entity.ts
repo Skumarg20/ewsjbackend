@@ -5,6 +5,8 @@ import { TimeTable } from './timetable.entity';
 import { Message } from './chatentities/message.entity';
 import { Group } from './chatentities/group.entity';
 import { GroupMember } from './chatentities/group-member.entity';
+import { Todo } from './todo.entity';
+import { Folder } from './notesFolder';
 
 @Entity()
 export class User {
@@ -43,6 +45,10 @@ export class User {
 
   @OneToMany(() => Message, (message) => message.receiver)
   receivedMessages: Message[];
+  @OneToMany(() => Folder, folder => folder.user)
+  folders: Folder[];
+  @OneToMany(()=>Todo,(todo)=>todo.user,{cascade:true})
+  todos:Todo[];
 
   @ManyToMany(() => Group, (group) => group.members)
   @JoinTable()

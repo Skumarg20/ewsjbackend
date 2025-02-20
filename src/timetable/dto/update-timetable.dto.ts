@@ -1,4 +1,4 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { CreateTimetableDto } from './create-timetable.dto';
+import { CreateTimeTableDto } from './create-timetable.dto';
 
-export class UpdateTimetableDto extends PartialType(CreateTimetableDto) {}
+export class UpdateTimetableDto extends PartialType(CreateTimeTableDto) {}

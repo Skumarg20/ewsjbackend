@@ -2,7 +2,7 @@ import { SubscribeMessage, WebSocketGateway, WebSocketServer, OnGatewayConnectio
 import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
 
-@WebSocketGateway(3001, { cors: { origin: '*' } }) 
+@WebSocketGateway(5001, { cors: { origin: '*' } }) 
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
@@ -50,21 +50,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('createGroup')
   async handleCreateGroup(client: Socket, payload: { name: string; userIds: string[] }) {
-    console.log(payload,"hello guys");
+   
     const group = await this.chatService.createGroup(payload.name, payload.userIds);
 
-    console.log(group,"group created");
-    
-    console.log('Payload User IDs:', payload.userIds);
-    console.log('Active Users Map:', this.activeUsers);
-    
     try {
       payload.userIds.forEach(userId => {
-        console.log(`Checking User ID: ${userId}`);
+       
         
         const userSocketId = [...this.activeUsers.entries()].find(([_, id]) => id === userId)?.[0];
         
-        console.log(`Found Socket ID for User ${userId}: ${userSocketId}`);
+       
     
         if (userSocketId) {
           this.server.sockets.sockets.get(userSocketId)?.join(group.id);
@@ -77,8 +72,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       console.log('🔥 Error:', error);
     }
     
-  
-   console.log( this.server.emit('groupCreated', group));
     this.server.emit('groupCreated', group);
   }
 }

@@ -1,15 +1,30 @@
-import { IsNotEmpty, IsString, IsObject } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-export class CreateTimetableDto {
-    @IsNotEmpty()
-    @IsString()
-    day: string;
+export class CreateTimeTableDto {
+    
+  @IsNotEmpty()
+  @IsString()
+  date?: string;
 
-    @IsNotEmpty()
-    @IsString()
-    exam: string;
+  @IsNotEmpty()
+  @IsString()
+  title: string;
 
-    @IsNotEmpty()
-    @IsObject()
-    schedule: Record<string, { subject: string; startTime: string; endTime: string }>;
+  @IsNotEmpty()
+  @IsString()
+  description: string;
+
+  @IsNotEmpty()
+  study_hours: number;
+
+  @IsOptional()
+  quote?: string;
+
+  @IsOptional()
+  schedule?: any[];
+}
+
+export class UpdateSessionDto {
+  @IsBoolean()
+  completed: boolean;
 }

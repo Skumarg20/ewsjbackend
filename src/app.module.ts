@@ -14,7 +14,10 @@ import { CalendarModule } from './calender/calendar.module';
 import { NotesModule } from './notes/notes.module';
 import { TimetableModule } from './timetable/timetable.module';
 import { ChatModule } from './chat/chat.module';
-
+import { StudyPlanController } from './studyplanner/studyplanner.controller';
+import { StudyPlanService } from './studyplanner/studyPlan.ai.service';
+import { todoModule } from './todo/todo.module';
+import { NotesFolderModule } from './notesfolder/notesfolder.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -36,17 +39,22 @@ import { ChatModule } from './chat/chat.module';
     CalendarModule,
     NotesModule,
     TimetableModule,
-    ChatModule
+    ChatModule,
+    todoModule,
+    NotesModule,
+    NotesFolderModule
   ],
   controllers: [
     AppController,
     VideosummerizeController,
     LearningpathController,
+    StudyPlanController
   ], 
   providers: [
     AppService,
     VideosummerizeService,
     LearningpathService,
+    StudyPlanService
   ], // Removed UserService and AuthService
 })
 export class AppModule {}

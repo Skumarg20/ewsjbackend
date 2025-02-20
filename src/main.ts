@@ -9,7 +9,7 @@ async function bootstrap() {
     origin: '*', 
     credentials: true,
   });
-
+  app.enableCors();
   
   app.useWebSocketAdapter(new IoAdapter(app))
   const configService = app.get(ConfigService);

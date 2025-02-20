@@ -1,18 +1,21 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, UseGuards, Req, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, UseGuards, Req, Request, Patch } from '@nestjs/common';
 import { TimetableService } from './timetable.service';
-import { CreateTimetableDto } from './dto/create-timetable.dto';
+import { CreateTimeTableDto, UpdateSessionDto } from './dto/create-timetable.dto';
 import { UpdateTimetableDto } from './dto/update-timetable.dto';
 import { JwtAuthGuard } from '../auth/jwt.strategy';
-
+import { GenerateTimetableDto } from './dto/generate-timetable.dto';
+import { TimeTableRepository } from './timetable.repo';
 
 @Controller('timetables')
 @UseGuards(JwtAuthGuard) 
 export class TimetableController {
-    constructor(private readonly timetableService: TimetableService) {}
+    constructor(private readonly timetableService: TimetableService,
+    ) {}
 
     
     @Post()
-    create(@Request() req, @Body() createTimetableDto: CreateTimetableDto) {
+    create(@Request() req, @Body() createTimetableDto: CreateTimeTableDto) {
+        console.log("controller,dto comming for frontend",createTimetableDto);
         const userId=req.user.userId;
         return this.timetableService.create(userId,createTimetableDto);
     }
@@ -23,22 +26,51 @@ export class TimetableController {
         const userId=req.user.userId;
         return this.timetableService.findAll(userId);
     }
-
- 
+    @Post('generatetimetable')
+    generateTimeTable(@Body() generateTimetableDto:GenerateTimetableDto){
+    // const userId=req.user.userId;
+    return this.timetableService.generateTimeTable(generateTimetableDto);
+    }
+   @Get('currenttimetable')
+   findCurrentTime(@Request() req){
+    const userId=req.user.userId;
+    return this.timetableService.findCurrent(userId);
+   }
+   @Get('sessions')
+   getSessions(@Request() req){
+       const userId=req.user.userId;
+       return this.timetableService.getSessions(userId);
+   }
     @Get(':id')
     findOne(@Param('id') id: string, @Request() req) {
         const userId=req.user.userId;
-        return this.timetableService.findOne(id, userId);
+        return this.timetableService.findOne(id);
     }
 
-  
-    @Put(':id')
-    update(@Param('id') id: string, @Request() req, @Body() updateTimetableDto: UpdateTimetableDto) {
+   
+    @Get('session/:id')
+    getSession(@Param('id') sessionId:string,@Request() req){
         const userId=req.user.userId;
-        return this.timetableService.update(id, userId, updateTimetableDto);
+        return this.timetableService.getSession(sessionId,userId);
     }
+    @Patch('session/:id')
+     updateSession(
+    @Param('id') sessionId: string,
+    @Request() req,
+    @Body() updateSessionDto: UpdateSessionDto,
+  ) {
+    
+    const userId=req.user.userId;
+    return this.timetableService.updateSession(sessionId,userId, updateSessionDto);
+  }
+    // @Put(':id')
+    // update(@Param('id') id: string, @Request() req, @Body() updateTimetableDto: UpdateTimetableDto) {
+    //     const userId=req.user.userId;
+    //     console.log(userId);
+    //     return this.timetableService.update(id, userId, updateTimetableDto);
+    // }
 
-  
+ 
     // @Delete(':id')
     // remove(@Param('id') id: string, @Request() req) {
     //     return this.timetableService.remove(id, req.user.userId);
