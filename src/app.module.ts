@@ -18,6 +18,8 @@ import { StudyPlanController } from './studyplanner/studyplanner.controller';
 import { StudyPlanService } from './studyplanner/studyPlan.ai.service';
 import { todoModule } from './todo/todo.module';
 import { NotesFolderModule } from './notesfolder/notesfolder.module';
+import { AwsController } from './aws/aws.controller';
+import { AwsService } from './aws/aws.service';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -42,9 +44,10 @@ import { NotesFolderModule } from './notesfolder/notesfolder.module';
     ChatModule,
     todoModule,
     NotesModule,
-    NotesFolderModule
+    NotesFolderModule,
   ],
   controllers: [
+    AwsController,
     AppController,
     VideosummerizeController,
     LearningpathController,
@@ -52,6 +55,7 @@ import { NotesFolderModule } from './notesfolder/notesfolder.module';
   ], 
   providers: [
     AppService,
+    AwsService,
     VideosummerizeService,
     LearningpathService,
     StudyPlanService

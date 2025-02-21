@@ -1,9 +1,13 @@
 import { Folder } from 'entities/notesFolder';
 import { Repository } from 'typeorm';
 import { CreateFolderDto } from './dto/createfolder.dto';
+import { InjectRepository } from '@nestjs/typeorm';
 
 export class NotesFolderService {
-  constructor(private readonly notesFolderRepository: Repository<Folder>) {}
+
+  constructor(
+     @InjectRepository(Folder)
+    private readonly notesFolderRepository: Repository<Folder>) {}
 
   async createNotesFolder(
     userId: string,
@@ -19,7 +23,7 @@ export class NotesFolderService {
   async getAllFolder(userId: string): Promise<Folder[]> {
     const folders = await this.notesFolderRepository
       .createQueryBuilder('folders')
-      .andWhere('notes.userId = :userId', { userId })
+      .andWhere('folders.userId = :userId', { userId })
       .getMany();
     if (!folders) {
       throw Error('folders are not found');
@@ -31,7 +35,7 @@ export class NotesFolderService {
     const folder = await this.notesFolderRepository
       .createQueryBuilder('folder')
       .where('folder.userId = :userId', { userId })
-      .andWhere('folder.folderId = :folderId', { folderId })
+      .andWhere('folder.id = :folderId', { folderId })
       .getOne();
 
     if (!folder) {
@@ -42,7 +46,7 @@ export class NotesFolderService {
 
     const checkFolder = await this.notesFolderRepository
       .createQueryBuilder('folder')
-      .andWhere('folder.folderId = :folderId', { folderId })
+      .andWhere('folder.id = :folderId', { folderId })
       .getOne();
 
     return checkFolder === null;
