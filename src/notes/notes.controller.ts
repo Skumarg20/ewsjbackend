@@ -11,7 +11,6 @@ export class NotesController {
     constructor(private readonly notesService: NotesService) {}
 
     @Post()
-    
     async createNote(@Body() createNoteDto: CreateNoteDto,@Request() req): Promise<Notes> {
         const userId=req.user.userId;
         return await this.notesService.createNote(createNoteDto,userId);
@@ -30,14 +29,14 @@ export class NotesController {
     }
    
     @Post(':folderId/note')
-    async createFolderSpecificNote(@Param('folderId') folderId:string,@Request() req,createNoteDto:CreateNoteDto):Promise<Notes>{
+    async createFolderSpecificNote(@Param('folderId') folderId:'uuid',@Request() req,@Body() createNoteDto:CreateNoteDto):Promise<Notes>{
         const userId=req.user.userId;
-        return await this.notesService.createFolderSpecificNotes(folderId,userId,createNoteDto);
+        return await this.notesService.createFolderSpecificNotes(userId,folderId,createNoteDto);
     }
     @Get(':folderId/notes')
     async getAllNotesFolderSpecific(@Param('folderId') folderId:string,@Request() req):Promise<Notes[]>{
         const userId=req.user.userId;
-        return await this.notesService.getAllNotesFolderSpecific(folderId,userId);
+         return await this.notesService.getAllNotesFolderSpecific(folderId,userId);
 
     }
     @Patch(':id')

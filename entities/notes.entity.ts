@@ -22,7 +22,7 @@ export class Notes {
   content: string | any;
   @ManyToOne(() => Folder, (folder) => folder.notes)
   folder: Folder;
-  @ManyToOne(() => User, (user) => user.notes, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.notes)
   user: User;
   @Column({
     type: 'timestamp',

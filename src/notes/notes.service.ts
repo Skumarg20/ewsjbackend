@@ -9,6 +9,7 @@ export class NotesService {
     constructor(private readonly notesRepository: NotesRepository) {}
 
     async createNote(createNoteDto: CreateNoteDto,userId:'uuid'): Promise<Notes> {
+
         return await this.notesRepository.createNote(createNoteDto,userId);
     }
 
@@ -16,12 +17,13 @@ export class NotesService {
         return await this.notesRepository.getAllNotesByUser(userId);
     }
 
+
     async getNoteById(id: string,userId:'uuid'): Promise<Notes> {
         const note = await this.notesRepository.getNoteById(id,userId);
         if (!note) throw new NotFoundException('Note not found');
         return note;
     }
-    async createFolderSpecificNotes(userId:string,folderId:string,createNoteDto:CreateNoteDto):Promise<Notes>{
+    async createFolderSpecificNotes(userId:'uuid',folderId:'uuid',createNoteDto:CreateNoteDto):Promise<Notes>{
         return await this.notesRepository.createNotesForSpecificFolder(createNoteDto,folderId,userId)
     }
    async getAllNotesFolderSpecific(userId:string,folderId:string):Promise<Notes[]>{

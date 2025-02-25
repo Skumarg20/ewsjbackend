@@ -28,7 +28,7 @@ export class NotesFolderController{
     }
 
     @Delete(':id')
-    async deleteFolder(@Request() req,@Param('id') id:string):Promise<Boolean>{
+    async deleteFolder(@Request() req,@Param('id') id:'uuid'):Promise<Boolean>{
         const userId=req.user.userId;
         console.log(id,userId,"this is deleting details")
         return this.notesFolderService.deleteFolder(userId,id);

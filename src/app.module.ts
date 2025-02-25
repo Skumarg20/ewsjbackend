@@ -15,11 +15,13 @@ import { NotesModule } from './notes/notes.module';
 import { TimetableModule } from './timetable/timetable.module';
 import { ChatModule } from './chat/chat.module';
 import { StudyPlanController } from './studyplanner/studyplanner.controller';
-import { StudyPlanService } from './studyplanner/studyPlan.ai.service';
+import { StudyPlanService } from './studyplanner/studyplan.service';
 import { todoModule } from './todo/todo.module';
 import { NotesFolderModule } from './notesfolder/notesfolder.module';
 import { AwsController } from './aws/aws.controller';
 import { AwsService } from './aws/aws.service';
+import { StudyPlanModule } from './studyplanner/studyplan.module';
+import { PaymentModule } from './payment/payment.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -45,20 +47,22 @@ import { AwsService } from './aws/aws.service';
     todoModule,
     NotesModule,
     NotesFolderModule,
+    StudyPlanModule,
+    PaymentModule
   ],
   controllers: [
     AwsController,
     AppController,
     VideosummerizeController,
     LearningpathController,
-    StudyPlanController
+    
   ], 
   providers: [
     AppService,
     AwsService,
     VideosummerizeService,
     LearningpathService,
-    StudyPlanService
+    
   ], // Removed UserService and AuthService
 })
 export class AppModule {}

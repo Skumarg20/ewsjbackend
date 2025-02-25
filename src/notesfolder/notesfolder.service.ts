@@ -19,11 +19,23 @@ export class NotesFolderService {
     });
     return await this.notesFolderRepository.save(folder);
   }
-
+  async findoneFolder(userId: string, folderId: string): Promise<Folder> {
+    const folder = await this.notesFolderRepository
+      .createQueryBuilder('folder')
+      .where('folder.userId = :userId', { userId })
+      .andWhere('folder.id = :folderId', { folderId })
+      .getOne();
+    if (!folder) {
+      throw Error('folder is not found');
+    }
+    return folder;
+  }
   async getAllFolder(userId: string): Promise<Folder[]> {
     const folders = await this.notesFolderRepository
       .createQueryBuilder('folders')
+      .leftJoinAndSelect('folders.notes', 'notes')
       .andWhere('folders.userId = :userId', { userId })
+      
       .getMany();
     if (!folders) {
       throw Error('folders are not found');
@@ -31,7 +43,8 @@ export class NotesFolderService {
     return folders;
   }
 
-  async deleteFolder(userId: string, folderId: string): Promise<boolean> {
+  async deleteFolder(userId: 'uuid', folderId: 'uuid'): Promise<boolean> {
+    console.log(folderId, userId, 'this is deleting details');
     const folder = await this.notesFolderRepository
       .createQueryBuilder('folder')
       .where('folder.userId = :userId', { userId })

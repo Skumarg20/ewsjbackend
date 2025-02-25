@@ -17,10 +17,15 @@ export class AwsService {
   }
 
   async uploadFile(file: Express.Multer.File): Promise<{ Location: string }> {
-    console.log('Uploading file:', file.originalname);
-    const { originalname, buffer, mimetype } = file;
+    
+    const { buffer, mimetype } = file;
+    const extension = file.originalname.split('.').pop() || file.mimetype.split('/')[1];
 
-    return await this.s3Upload(buffer, this.AWS_S3_BUCKET, originalname, mimetype);
+    const filename = `ewsj-image-${new Date().toISOString().replace(/[:.]/g, '-')}.${extension}`;
+
+    console.log(filename,mimetype,filename,"this is file name");
+
+    return await this.s3Upload(buffer, this.AWS_S3_BUCKET, filename, mimetype);
   }
 
   private async s3Upload(
@@ -40,6 +45,7 @@ export class AwsService {
 
     try {
       const command = new PutObjectCommand(params);
+      console.log(command,"this is cmd for file upload in aws");
       await this.s3Client.send(command);
 
       // Construct the file URL manually since v3 doesn't return it directly
