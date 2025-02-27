@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { VideosummerizeService } from './modules/videosummerize/videosummerize.service';
 import { VideosummerizeController } from './modules/videosummerize/videosummerize.controller';
 import { LearningpathModule } from './modules/learningpath/learningpath.module';
@@ -27,15 +27,19 @@ import { PaymentModule } from './payment/payment.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }), 
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'ewsj',
-      password: '8081',
-      database: 'ewsj',
-      autoLoadEntities: true,
-      synchronize: true,
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        type: 'mysql',
+        host: configService.get<string>('SQL_HOST', 'localhost'),
+        port: configService.get<number>('SQL_PORT', 3306),
+        username: configService.get<string>('SQL_USERNAME', 'root'),
+        password: configService.get<string>('SQL_PASSWORD', ''),
+        database: configService.get<string>('SQL_DATABASE', 'default_db'),
+        autoLoadEntities: true,
+        synchronize: true,
+      }),
+      inject: [ConfigService],
     }),
     LearningpathModule,
     UserModule,

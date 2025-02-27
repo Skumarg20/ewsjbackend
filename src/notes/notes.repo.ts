@@ -1,5 +1,5 @@
 import { Repository } from 'typeorm';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Notes } from '../../entities/notes.entity';
 import { CreateNoteDto } from './dto/create-note.dto';
@@ -75,15 +75,38 @@ async getAllNotesOfSpecificFolder(folderId:string,userId:string):Promise<Notes[]
         return await this.notesRepo.findOne({ where: { id: noteId, user: { id: userId } } });
     }
 
-  
-    async updateNote(userId: string, noteId: string, updateNoteDto: UpdateNoteDto): Promise<Notes | null> {
-        const note = await this.getNoteById(userId, noteId);
-        if (!note) throw new NotFoundException('Note not found for this user');
-
-        Object.assign(note, updateNoteDto);
-        return await this.notesRepo.save(note);
+    async updateNote(userId: string, noteId: string, updateNoteDto: UpdateNoteDto): Promise<Notes> {
+        // Input validation
+        if (!userId || !noteId) {
+            throw new BadRequestException('User ID and Note ID are required');
+        }
+    
+        try {
+            
+            const note = await this.notesRepo.createQueryBuilder('notes')
+                .where('notes.id = :noteId', { noteId })
+                .andWhere('notes.userId = :userId', { userId })
+                .getOne(); 
+    
+            console.log('Fetched note:', note);
+    
+            if (!note) {
+                throw new NotFoundException('Note not found for this user');
+            }
+    
+           
+            Object.assign(note, updateNoteDto);
+            console.log('Updated note before save:', note);
+    
+            return await this.notesRepo.save(note);
+        } catch (error) {
+            console.error('Error in updateNote:', error);
+            if (error instanceof NotFoundException) {
+                throw error;
+            }
+            throw new InternalServerErrorException('Failed to update note: ' + error.message);
+        }
     }
-
    
     async deleteNote(userId: string, noteId: string): Promise<boolean> {
         const note = await this.getNoteById(userId, noteId);

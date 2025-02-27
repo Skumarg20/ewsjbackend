@@ -71,7 +71,7 @@ export class AuthService {
     }
 
 
-    const payload = { sub: user.id, username: user.username, email: user.email };
+    const payload = { sub: user.id, username: user.username, email: user.email, fullname: user.fullname, phonenumber: user.phonenumber, studentclass: user.class, exam: user.exam};
 
     return {
       access_token: this.jwtService.sign(payload),
@@ -88,7 +88,7 @@ async validateUser(email: string, password: string): Promise<User | null> {
 }
 
   async signIn(user: User): Promise<{ access_token: string }> {
-    const payload = { sub: user.id, username: user.username };
+    const payload = { sub: user.id, username: user.username,fullname: user.fullname, email: user.email, phonenumber: user.phonenumber, studentclass: user.class, exam: user.exam};
     return {
       access_token: this.jwtService.sign(payload),
     };
