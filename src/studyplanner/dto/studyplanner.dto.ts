@@ -1,25 +1,13 @@
-export enum DurationUnit {
-    Weeks = 'weeks',
-    Months = 'months',
-    Years = 'years'
+
+  
+export class StudyPlanInputDto {
+    target:string[];
+    exam:string;
+    chapters:string[];
+    dailyHours:number;
+    subject?:string[];
+    studentType:string;
+    duedate?:string;
   }
   
-  export class StudyPlanInputDto {
-    exam: string; 
-    
-    duration: number; 
-    
-    durationUnit: DurationUnit; 
-    
-    isBoardExam: boolean; 
-    
-    dailyStudyHours: number; 
-    
-    targetTopics?: string[]; 
-    
-  
-    targetQuestionsPerSubject?: { 
-      [subject: string]: number; 
-    }; 
-  }
   

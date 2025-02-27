@@ -7,6 +7,7 @@ import { Group } from './chatentities/group.entity';
 import { GroupMember } from './chatentities/group-member.entity';
 import { Todo } from './todo.entity';
 import { Folder } from './notesFolder';
+import { StudyPlan } from './studyplan.entity';
 
 @Entity()
 export class User {
@@ -21,6 +22,8 @@ export class User {
 
   @Column()
   fullname: string;
+  @Column({nullable:true})
+  phonenumber:string;
 
   @Column({ unique: true })
   email: string;
@@ -42,7 +45,8 @@ export class User {
 
   @OneToMany(() => Message, (message) => message.sender)
   sentMessages: Message[]; // Renamed for clarity
-
+  @OneToMany(()=>StudyPlan,(studyPlan)=>studyPlan.user)
+  studyPlan:StudyPlan[]
   @OneToMany(() => Message, (message) => message.receiver)
   receivedMessages: Message[];
   @OneToMany(() => Folder, folder => folder.user)

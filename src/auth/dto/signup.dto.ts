@@ -3,7 +3,9 @@ export class SignUpDto {
     email: string;
     fullname:string;
     password: string;
+    phonenumber:string;
     studentclass:string;
+  
     exam:string;
     address?: Record<string, any>;
   }

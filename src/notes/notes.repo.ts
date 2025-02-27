@@ -1,37 +1,57 @@
 import { Repository } from 'typeorm';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Notes } from '../../entities/notes.entity';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
 import { throws } from 'assert';
+import { Folder } from 'entities/notesFolder';
+import { NotesFolderService } from 'src/notesfolder/notesfolder.service';
 
 @Injectable()
 export class NotesRepository {
+    NotesFolderService: any;
     constructor(
+       
         @InjectRepository(Notes)
-        private readonly notesRepo: Repository<Notes>
+        private readonly notesRepo: Repository<Notes>,
+        @InjectRepository(Folder)
+        private readonly notesFolderRepository: Repository<Folder>,
+    
     ) {}
 
     /** 🔹 Create Note for a Specific User */
     async createNote(createNoteDto: CreateNoteDto, userId: string): Promise<Notes> {
+        console.log(createNoteDto,"this is dto i am sending to save");
         const note = this.notesRepo.create({
             ...createNoteDto,
-            content: JSON.stringify(createNoteDto.content),
+            content: createNoteDto.content,
             user: { id: userId }, 
         });
-
+     console.log(note,"this is not after saving");
         return await this.notesRepo.save(note);
     }
  /** create notes for a specific folder */
- async createNotesForSpecificFolder(createNote:CreateNoteDto,folderId:string,userId:string):Promise<Notes>{
-    const notes=this.notesRepo.create({
-        ...createNote,
-        content:JSON.stringify(createNote.content),
-        user:{id:userId},
-        folder:{id:folderId},
-    });
-    return await this.notesRepo.save(notes);
+ async createNotesForSpecificFolder(createNoteDto:CreateNoteDto,folderId:'uuid',userId:'uuid'):Promise<Notes>{
+    console.log(createNoteDto,"this is dto in service");
+    console.log(folderId,userId,"this is folderId and userId");
+    const folder = await this.notesFolderRepository
+    .createQueryBuilder('folder')
+    .where('folder.userId = :userId', { userId })
+    .andWhere('folder.id = :folderId', { folderId })
+    .getOne();
+  console.log(folder,"this is folder");
+    if (!folder) {
+        throw Error('folder is not found');
+    }
+    const note = this.notesRepo.create({
+        ...createNoteDto, 
+        content: JSON.stringify(createNoteDto.content), 
+        folder, 
+        user: { id: userId },   
+      });
+    console.log(note,"this is notes after saving");
+    return await this.notesRepo.save(note);
  }
  /**Get all notes of specific folder */
 async getAllNotesOfSpecificFolder(folderId:string,userId:string):Promise<Notes[]>{
@@ -55,15 +75,38 @@ async getAllNotesOfSpecificFolder(folderId:string,userId:string):Promise<Notes[]
         return await this.notesRepo.findOne({ where: { id: noteId, user: { id: userId } } });
     }
 
-  
-    async updateNote(userId: string, noteId: string, updateNoteDto: UpdateNoteDto): Promise<Notes | null> {
-        const note = await this.getNoteById(userId, noteId);
-        if (!note) throw new NotFoundException('Note not found for this user');
-
-        Object.assign(note, updateNoteDto);
-        return await this.notesRepo.save(note);
+    async updateNote(userId: string, noteId: string, updateNoteDto: UpdateNoteDto): Promise<Notes> {
+        // Input validation
+        if (!userId || !noteId) {
+            throw new BadRequestException('User ID and Note ID are required');
+        }
+    
+        try {
+            
+            const note = await this.notesRepo.createQueryBuilder('notes')
+                .where('notes.id = :noteId', { noteId })
+                .andWhere('notes.userId = :userId', { userId })
+                .getOne(); 
+    
+            console.log('Fetched note:', note);
+    
+            if (!note) {
+                throw new NotFoundException('Note not found for this user');
+            }
+    
+           
+            Object.assign(note, updateNoteDto);
+            console.log('Updated note before save:', note);
+    
+            return await this.notesRepo.save(note);
+        } catch (error) {
+            console.error('Error in updateNote:', error);
+            if (error instanceof NotFoundException) {
+                throw error;
+            }
+            throw new InternalServerErrorException('Failed to update note: ' + error.message);
+        }
     }
-
    
     async deleteNote(userId: string, noteId: string): Promise<boolean> {
         const note = await this.getNoteById(userId, noteId);

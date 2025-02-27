@@ -25,7 +25,7 @@ import { User } from './user.entity';
     @Column()
     description?:string
   
-    @OneToMany(() => Notes, (note)=> note.folder)
+    @OneToMany(() => Notes, (note)=> note.folder,{ onDelete: 'CASCADE' })
     notes: Notes[];
 
     @ManyToOne(() => User, user => user.folders, { onDelete: 'CASCADE' })
