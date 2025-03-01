@@ -8,8 +8,7 @@ import { TimeTableRepository } from './timetable.repo';
 import { GenerateTimetableDto } from './dto/generate-timetable.dto';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
-
-
+import { TimeTableResponse } from './interface/timetable.interface';
 import { StudyPlanInterface } from './dto/generate-timetable.dto';
 import { StudySession } from 'entities/StudySession';
 
@@ -33,6 +32,7 @@ export class TimetableService {
     this.geminiApiUrl = geminiApiUrl;
   }
 
+  
   async create(
     userId: string,
     createTimetableDto: CreateTimeTableDto,
@@ -48,12 +48,11 @@ export class TimetableService {
   async findAll(userId: string): Promise<TimeTable[]> {
     return this.timeTableRepository.getAllTimeTableByUser(userId);
   }
-  async findCurrent(userId:string): Promise<TimeTable|null>{
+  async findCurrent(userId:string): Promise<TimeTableResponse|null>{
     return this.timeTableRepository.getCurrentTimeTable(userId);
   }
   async findOne(id: string): Promise<TimeTable> {
     const timetable = await this.timeTableRepository.getTimeTableById(
-     
       id,
     );
     if (!timetable) throw new NotFoundException('Timetable not found');
@@ -78,7 +77,6 @@ export class TimetableService {
   ): Promise<any> {
     console.log(generateTimetableDto);
     const {
-      timeFrame,
       targetExam,
       dailyRoutine,
       studyHours,
@@ -99,14 +97,14 @@ export class TimetableService {
       add some good motivating line or quotes too
       return data with {
         date: string;
-        title: string;
+        title: string; into range start time to end time in 24 hours format
         description: string;
         study_hours: number;
         schedule: {
         time: string;
   subject
   topic?
-  activity
+  activity in acitivity in only one word like study coding work relax only there 4 (lunch dinner breakfast break will come under relax activity)
   notes? 
         }
         quote: 
@@ -184,6 +182,7 @@ const { timeTable, ...sessionWithoutTimeTable } = session;
 
     return { message: 'Session updated successfully'};
 }
+
 
   
 }

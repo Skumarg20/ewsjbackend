@@ -8,6 +8,7 @@ export class LearningpathService {
 
   constructor(private configService: ConfigService) {
     const openAiKey = this.configService.get<string>('OPENAI_API_KEY');
+    console.log(openAiKey);
     if (!openAiKey) {
       throw new HttpException('OpenAI API key is missing', HttpStatus.INTERNAL_SERVER_ERROR);
     }
