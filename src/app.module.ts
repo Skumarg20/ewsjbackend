@@ -22,11 +22,25 @@ import { AwsController } from './aws/aws.controller';
 import { AwsService } from './aws/aws.service';
 import { StudyPlanModule } from './studyplanner/studyplan.module';
 import { PaymentModule } from './payment/payment.module';
+import { RedisModule } from '@nestjs-modules/ioredis';
+import { RateLimitService } from './rate-limit/rate-limit.service';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }), 
+    RedisModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        type: 'single',
+        options: {
+          host: configService.get<string>('REDIS_HOST', 'localhost'),
+          port: configService.get<number>('REDIS_PORT', 6379),
+        },
+      }),
+      inject: [ConfigService],
+    }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -52,7 +66,7 @@ import { PaymentModule } from './payment/payment.module';
     NotesModule,
     NotesFolderModule,
     StudyPlanModule,
-    PaymentModule
+    PaymentModule,
   ],
   controllers: [
     AwsController,
@@ -63,9 +77,11 @@ import { PaymentModule } from './payment/payment.module';
   ], 
   providers: [
     AppService,
+    RateLimitService,
     AwsService,
     VideosummerizeService,
     LearningpathService,
+    RateLimitService
     
   ], // Removed UserService and AuthService
 })

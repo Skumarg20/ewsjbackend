@@ -1,10 +1,14 @@
+import { PlanType } from 'enum/plan.enum';
 import { dateInTimeZone } from 'rrule/dist/esm/dateutil';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  ManyToMany,
+  ManyToOne,
 } from 'typeorm';
+import { User } from './user.entity';
 
 @Entity()
 export class Payment {
@@ -26,21 +30,14 @@ export class Payment {
   @Column({ default: 'pending' })
   status: string;
 
-  @Column()
-  name: string;
-
-  @Column()
-  email: string;
-
-  @Column()
-  exam: string;
-
   @Column({ type: 'timestamp' })
   date: Date;
-  @Column()
-  message: string;
-  @Column()
-  phoneNumber: string;
+ 
+  @Column({ type: "enum", enum: PlanType })
+  plan: PlanType;
+
+  @ManyToOne(() => User, (user) => user.payments) // Many payments belong to one user
+  user: User;
 
   @Column({
     type: 'timestamp',

@@ -1,11 +1,12 @@
 import { Controller, Post, Body, Get, BadRequestException,Request, UseGuards } from '@nestjs/common';
 import { StudyPlanService } from './studyplan.service';
 import { StudyPlanInputDto } from './dto/studyplanner.dto';
-import { TargetPlanDataDto, WeeklyPlanDataDto } from './dto/create-study-plan.dto';
+import { CustomStudyPlanDto, TargetPlanDataDto, WeeklyPlanDataDto } from './dto/create-study-plan.dto';
 import { JwtAuthGuard } from 'src/auth/jwt.strategy';
-
+import { RateLimitGuard } from 'src/rate-limit/rate-limit.guard';
+import { RateLimited } from 'src/rate-limit/rate-limit.decorator';
 @Controller('study-plan')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard,RateLimitGuard)
 export class StudyPlanController {
   constructor(private readonly studyPlanService: StudyPlanService) {}
 
@@ -34,18 +35,31 @@ export class StudyPlanController {
    console.log(createTargetPlanDto,userId,"this is dto i am reciving to submit");
     return  this.studyPlanService.saveTargetedStudyPlan(userId,createTargetPlanDto);
   }
+  @Get('custom-plan')
+  async getCustomStudyPlan(@Request() req){
+    const userId=req.user.userId;
+    return this.studyPlanService.getcustomStudyPlan(userId);
+  }
+  @Post('custom-plan')
+  async saveCustomStudyPlan(@Body() customStudyPlanDto:CustomStudyPlanDto,@Request() req){
+    const userId=req.user.userId;
+    return this.studyPlanService.saveCustomStudyPlan(userId,customStudyPlanDto);
+  }
   @Post('generate')
+  @RateLimited('generateStudyPlan')
   async generateStudyPlan(@Body() input: StudyPlanInputDto) {
     return this.studyPlanService.generatePlan(input);
   }
 
   @Post('generate-targetplan')
+  @RateLimited('generateTargetStudyPlan')
   async generateTargetStudyPlan(@Body() input: TargetPlanDataDto) { 
     return this.studyPlanService.generateTargetStudyPlan(input);
   }
 
  
   @Post('doubt')
+  @RateLimited('askDoubt')
   async askDoubt(@Body('doubt') message: string) {
   if (!message || typeof message !== 'string') {
     throw new BadRequestException('Invalid input: doubt must be a non-empty string.');

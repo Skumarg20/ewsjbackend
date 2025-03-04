@@ -6,7 +6,7 @@ import { StudyPlanInputDto } from './dto/studyplanner.dto';
 import { Repository } from 'typeorm';
 import { StudyPlan } from 'entities/studyplan.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { TargetPlanDataDto, WeeklyPlanDataDto } from './dto/create-study-plan.dto';
+import { CustomStudyPlanDto, TargetPlanDataDto, WeeklyPlanDataDto } from './dto/create-study-plan.dto';
 import { PlanType } from 'entities/studyplan.entity';
 @Injectable()
 export class StudyPlanService {
@@ -302,6 +302,31 @@ Greetings, Study Commander! Your mission is to forge an epic, battle-ready study
      
     }
   }
+  async saveCustomStudyPlan(userId:string,customStudyPlan:CustomStudyPlanDto):Promise<StudyPlan|undefined>{
+    try{
+      const customstudyPlan=await this.studyPlanRepository.create({
+        planType:PlanType.CUSTOM,
+        customData:customStudyPlan,
+        user:{id:userId}
+      });
+      console.log(customstudyPlan,"this is saved custom study plan");
+      return await this.studyPlanRepository.save(customstudyPlan);
+    }
+    catch(error){
+      throw Error(error);
+    }
+  }
+  async getcustomStudyPlan(userId:string):Promise<StudyPlan|null>{
+    const customStudyPlan = await this.studyPlanRepository
+    .createQueryBuilder('studyplan')
+    .where('studyplan.planType = :planType', { planType: PlanType.CUSTOM })
+    .andWhere('studyplan.userId = :userId', { userId }) 
+    .orderBy('studyplan.createdAt', 'DESC') 
+    .getOne();
+
+  return customStudyPlan;
+                                                   
+   }
   }
   
   
