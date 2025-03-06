@@ -18,7 +18,6 @@ export class RateLimitService {
     const now = new Date();
     let effectivePlan = plan;
 
-    console.log(plan,"this is plan");
     if (plan === PlanType.PRO && subscriptionEnd && now > subscriptionEnd) {
       effectivePlan = PlanType.FREE; 
     }

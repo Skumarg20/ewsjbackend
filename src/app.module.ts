@@ -43,16 +43,19 @@ import { RateLimitService } from './rate-limit/rate-limit.service';
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        type: 'mysql',
-        host: configService.get<string>('SQL_HOST', 'localhost'),
-        port: configService.get<number>('SQL_PORT', 3306),
-        username: configService.get<string>('SQL_USERNAME', 'root'),
-        password: configService.get<string>('SQL_PASSWORD', ''),
-        database: configService.get<string>('SQL_DATABASE', 'default_db'),
-        autoLoadEntities: true,
-        synchronize: true,
-      }),
+      useFactory: (configService: ConfigService) => {
+        const dbConfig = {
+          type: 'mysql' as const, 
+          host: configService.get<string>('DATABASE_HOST', 'localhost'),
+          port: configService.get<number>('DATABASE_PORT', 3306),
+          username: configService.get<string>('DATABASE_USERNAME', 'root'),
+          password: configService.get<string>('DATABASE_PASSWORD', '8081'),
+          database: configService.get<string>('DATABASE_NAME', 'ewsj'),
+          autoLoadEntities: true,
+          synchronize: true, 
+        };
+        return dbConfig;
+      },
       inject: [ConfigService],
     }),
     LearningpathModule,
@@ -73,7 +76,6 @@ import { RateLimitService } from './rate-limit/rate-limit.service';
     AppController,
     VideosummerizeController,
     LearningpathController,
-    
   ], 
   providers: [
     AppService,
@@ -81,8 +83,7 @@ import { RateLimitService } from './rate-limit/rate-limit.service';
     AwsService,
     VideosummerizeService,
     LearningpathService,
-    RateLimitService
-    
-  ], // Removed UserService and AuthService
+    RateLimitService,
+  ],
 })
 export class AppModule {}

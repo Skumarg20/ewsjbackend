@@ -82,7 +82,7 @@ export class StudyPlanService {
     `;
   
    
-    console.log(prompt);
+   
       const response = await axios.post(
         `${this.geminiApiUrl}?key=${this.apiKey}`,
         {
@@ -276,7 +276,7 @@ Greetings, Study Commander! Your mission is to forge an epic, battle-ready study
         weeklyData: studyweeklyPlanDto,
         user: { id: userId },
       });
-   console.log(weeklyStudyPlan,"this is weekly study plan created");
+
       return await this.studyPlanRepository.save(weeklyStudyPlan);
       
     
@@ -293,7 +293,7 @@ Greetings, Study Commander! Your mission is to forge an epic, battle-ready study
         targetData: targetstudyPlanDto,
         user: { id: userId },
       });
-   console.log(targetStudyPlan,"this is target study plan created");
+  
       return await this.studyPlanRepository.save(targetStudyPlan);
       
     
@@ -309,7 +309,8 @@ Greetings, Study Commander! Your mission is to forge an epic, battle-ready study
         customData:customStudyPlan,
         user:{id:userId}
       });
-      console.log(customstudyPlan,"this is saved custom study plan");
+     
+
       return await this.studyPlanRepository.save(customstudyPlan);
     }
     catch(error){

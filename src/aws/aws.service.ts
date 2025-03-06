@@ -23,7 +23,8 @@ export class AwsService {
 
     const filename = `ewsj-image-${new Date().toISOString().replace(/[:.]/g, '-')}.${extension}`;
 
-    console.log(filename,mimetype,filename,"this is file name");
+   
+    
 
     return await this.s3Upload(buffer, this.AWS_S3_BUCKET, filename, mimetype);
   }
@@ -45,7 +46,8 @@ export class AwsService {
 
     try {
       const command = new PutObjectCommand(params);
-      console.log(command,"this is cmd for file upload in aws");
+     
+      
       await this.s3Client.send(command);
 
       // Construct the file URL manually since v3 doesn't return it directly

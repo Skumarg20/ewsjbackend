@@ -16,7 +16,7 @@ export class TimetableController {
     
     @Post()
     create(@Request() req, @Body() createTimetableDto: CreateTimeTableDto) {
-        console.log("controller,dto comming for frontend",createTimetableDto);
+       
         const userId=req.user.userId;
         return this.timetableService.create(userId,createTimetableDto);
     }

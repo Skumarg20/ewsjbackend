@@ -21,7 +21,7 @@ export class StudyPlanController {
   @Post('weekly-plan')
   async saveWeeklyStudyPlan(@Body() createWeeklyPlanDto:WeeklyPlanDataDto,@Request() req){
     const userId=req.user.userId;
-   console.log(createWeeklyPlanDto,userId,"this is dto i am reciving to submit");
+ 
     return  this.studyPlanService.saveWeeklyStudyPlan(userId,createWeeklyPlanDto);
   }
 
@@ -32,7 +32,7 @@ export class StudyPlanController {
   @Post('target-plan')
   async saveTargetStudyPlan(@Body() createTargetPlanDto:TargetPlanDataDto,@Request() req){
     const userId=req.user.userId;
-   console.log(createTargetPlanDto,userId,"this is dto i am reciving to submit");
+  
     return  this.studyPlanService.saveTargetedStudyPlan(userId,createTargetPlanDto);
   }
   @Get('custom-plan')

@@ -38,7 +38,7 @@ export class TimetableService {
     createTimetableDto: CreateTimeTableDto,
   ): Promise<TimeTable | any> {
 
-    console.log("server dto",createTimetableDto);
+    
     return await this.timeTableRepository.createTimeTable(
       userId,
       createTimetableDto,
@@ -75,7 +75,7 @@ export class TimetableService {
   async generateTimeTable(
     generateTimetableDto: GenerateTimetableDto,
   ): Promise<any> {
-    console.log(generateTimetableDto);
+   
     const {
       targetExam,
       dailyRoutine,
@@ -140,7 +140,7 @@ export class TimetableService {
   }
 
   async getSessions(userId:string){
-    console.log(userId,"this is call comming in time table service");
+   
     const sessions=await this.timeTableRepository.getSessions(userId);
     return sessions;
   }
@@ -172,7 +172,7 @@ const { timeTable, ...sessionWithoutTimeTable } = session;
     if (!session.timeTable) {
         throw new Error('TimeTable relation not found in session');
     }
-   console.log(session?.timeTable?.user.id,userId,"iides")
+  
     if (!session.timeTable.user || session.timeTable.user.id !== userId) {
         throw new Error('Unauthorized or user mismatch');
     }
