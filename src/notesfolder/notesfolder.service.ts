@@ -44,7 +44,7 @@ export class NotesFolderService {
   }
 
   async deleteFolder(userId: 'uuid', folderId: 'uuid'): Promise<boolean> {
-    console.log(folderId, userId, 'this is deleting details');
+   
     const folder = await this.notesFolderRepository
       .createQueryBuilder('folder')
       .where('folder.userId = :userId', { userId })

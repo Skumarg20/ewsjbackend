@@ -22,25 +22,25 @@ export class NotesRepository {
 
     /** 🔹 Create Note for a Specific User */
     async createNote(createNoteDto: CreateNoteDto, userId: string): Promise<Notes> {
-        console.log(createNoteDto,"this is dto i am sending to save");
+        
         const note = this.notesRepo.create({
             ...createNoteDto,
             content: createNoteDto.content,
             user: { id: userId }, 
         });
-     console.log(note,"this is not after saving");
+     
+
         return await this.notesRepo.save(note);
     }
  /** create notes for a specific folder */
  async createNotesForSpecificFolder(createNoteDto:CreateNoteDto,folderId:'uuid',userId:'uuid'):Promise<Notes>{
-    console.log(createNoteDto,"this is dto in service");
-    console.log(folderId,userId,"this is folderId and userId");
+   
     const folder = await this.notesFolderRepository
     .createQueryBuilder('folder')
     .where('folder.userId = :userId', { userId })
     .andWhere('folder.id = :folderId', { folderId })
     .getOne();
-  console.log(folder,"this is folder");
+
     if (!folder) {
         throw Error('folder is not found');
     }
@@ -50,7 +50,7 @@ export class NotesRepository {
         folder, 
         user: { id: userId },   
       });
-    console.log(note,"this is notes after saving");
+   
     return await this.notesRepo.save(note);
  }
  /**Get all notes of specific folder */
@@ -88,15 +88,14 @@ async getAllNotesOfSpecificFolder(folderId:string,userId:string):Promise<Notes[]
                 .andWhere('notes.userId = :userId', { userId })
                 .getOne(); 
     
-            console.log('Fetched note:', note);
-    
+          
             if (!note) {
                 throw new NotFoundException('Note not found for this user');
             }
     
            
             Object.assign(note, updateNoteDto);
-            console.log('Updated note before save:', note);
+           
     
             return await this.notesRepo.save(note);
         } catch (error) {

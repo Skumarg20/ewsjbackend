@@ -4,10 +4,11 @@ import { CreateTimeTableDto, UpdateSessionDto } from './dto/create-timetable.dto
 import { UpdateTimetableDto } from './dto/update-timetable.dto';
 import { JwtAuthGuard } from '../auth/jwt.strategy';
 import { GenerateTimetableDto } from './dto/generate-timetable.dto';
-import { TimeTableRepository } from './timetable.repo';
+import {RateLimitGuard} from '../rate-limit/rate-limit.guard';
+import { RateLimited } from '../rate-limit/rate-limit.decorator';
 
 @Controller('timetables')
-@UseGuards(JwtAuthGuard) 
+@UseGuards(JwtAuthGuard,RateLimitGuard) 
 export class TimetableController {
     constructor(private readonly timetableService: TimetableService,
     ) {}
@@ -15,7 +16,7 @@ export class TimetableController {
     
     @Post()
     create(@Request() req, @Body() createTimetableDto: CreateTimeTableDto) {
-        console.log("controller,dto comming for frontend",createTimetableDto);
+       
         const userId=req.user.userId;
         return this.timetableService.create(userId,createTimetableDto);
     }
@@ -27,6 +28,7 @@ export class TimetableController {
         return this.timetableService.findAll(userId);
     }
     @Post('generatetimetable')
+    @RateLimited('generateTimetable')
     generateTimeTable(@Body() generateTimetableDto:GenerateTimetableDto){
     // const userId=req.user.userId;
     return this.timetableService.generateTimeTable(generateTimetableDto);

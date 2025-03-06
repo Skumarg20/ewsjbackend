@@ -5,7 +5,7 @@ import { TimeTable } from '../../entities/timetable.entity';
 import { CreateTimeTableDto } from './dto/create-timetable.dto';
 import { UpdateTimetableDto } from './dto/update-timetable.dto';
 import { StudySession } from 'entities/StudySession';
-
+import { TimeTableResponse } from './interface/timetable.interface';
 
 @Injectable()
 export class TimeTableRepository {
@@ -18,6 +18,40 @@ export class TimeTableRepository {
     ) {}
 
     /** 🔹 Create Note for a Specific User */
+    private calculateDuration(timeRange: string): number {
+      
+      const [startTime, endTime] = timeRange.split('-');
+     
+      const startDate = new Date(`01/01/2000 ${startTime}`);
+      const endDate = new Date(`01/01/2000 ${endTime}`);
+    
+
+      const durationMs = endDate.getTime() - startDate.getTime();
+    
+
+      const durationHours = durationMs / (1000 * 60 * 60);
+      console.log(durationHours, "this is duration hours");
+    
+      return durationHours;
+    }
+    private calculateTotalTimeSpent(schedule: StudySession[]): number {
+      if (!schedule) {
+        return 0; // If no schedule, return 0
+      }
+    
+    
+      const totalStudyHours = schedule
+        .filter(
+          (session) =>
+            session.activity.toLowerCase() !== 'relax' && // Exclude 'relax' activities
+            session.completed === true, // Include only completed sessions
+        )
+        .reduce((sum, session) => sum + this.calculateDuration(session.time), 0);
+    
+    
+ 
+      return totalStudyHours;
+    }
     async createTimeTable(userId: string, createTimetableDto: CreateTimeTableDto): Promise<TimeTable | any> {
         const date =  new Date().toISOString().split('T')[0];
         const dateObject = new Date(date);
@@ -29,17 +63,29 @@ export class TimeTableRepository {
         const timeTable = this.TimeTableRepo.create({
             ...createTimetableDto,
             date:formattedDate,
-            user: { id: userId }, // ✅ Correct way to assign a user
+            user: { id: userId },
         });
-    console.log("table time",timeTable);
         return await this.TimeTableRepo.save(timeTable);
     }
-    async getCurrentTimeTable(userId: string): Promise<TimeTable|null> {
-        return await this.TimeTableRepo.createQueryBuilder('timetable')
+    async getCurrentTimeTable(userId: string): Promise<TimeTableResponse|null> {
+        const timetable=await this.TimeTableRepo.createQueryBuilder('timetable')
              .leftJoinAndSelect('timetable.schedule', 'studySession') 
             .where('timetable.userId = :userId', { userId })
             .orderBy('timetable.updatedAt', 'DESC') 
             .getOne(); 
+          
+            if (!timetable) {
+              return null; 
+            }
+           
+            const totalTimeSpent = this.calculateTotalTimeSpent(timetable.schedule);
+            const completionRate = (totalTimeSpent / timetable.study_hours) * 100;
+            return {
+              ...timetable,
+              total_time_spent: totalTimeSpent,
+              completion_rate: parseFloat(completionRate.toFixed(2)),
+            };
+
     }
     
     

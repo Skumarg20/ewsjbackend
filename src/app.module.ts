@@ -22,23 +22,40 @@ import { AwsController } from './aws/aws.controller';
 import { AwsService } from './aws/aws.service';
 import { StudyPlanModule } from './studyplanner/studyplan.module';
 import { PaymentModule } from './payment/payment.module';
+import { RedisModule } from '@nestjs-modules/ioredis';
+import { RateLimitService } from './rate-limit/rate-limit.service';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }), 
-    TypeOrmModule.forRootAsync({
+    RedisModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        type: 'mysql',
-        host: configService.get<string>('SQL_HOST', 'localhost'),
-        port: configService.get<number>('SQL_PORT', 3306),
-        username: configService.get<string>('SQL_USERNAME', 'root'),
-        password: configService.get<string>('SQL_PASSWORD', ''),
-        database: configService.get<string>('SQL_DATABASE', 'default_db'),
-        autoLoadEntities: true,
-        synchronize: true,
+        type: 'single',
+        options: {
+          host: configService.get<string>('REDIS_HOST', 'localhost'),
+          port: configService.get<number>('REDIS_PORT', 6379),
+        },
       }),
+      inject: [ConfigService],
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => {
+        const dbConfig = {
+          type: 'mysql' as const, 
+          host: configService.get<string>('DATABASE_HOST', 'localhost'),
+          port: configService.get<number>('DATABASE_PORT', 3306),
+          username: configService.get<string>('DATABASE_USERNAME', 'root'),
+          password: configService.get<string>('DATABASE_PASSWORD', '8081'),
+          database: configService.get<string>('DATABASE_NAME', 'ewsj'),
+          autoLoadEntities: true,
+          synchronize: true, 
+        };
+        return dbConfig;
+      },
       inject: [ConfigService],
     }),
     LearningpathModule,
@@ -52,21 +69,21 @@ import { PaymentModule } from './payment/payment.module';
     NotesModule,
     NotesFolderModule,
     StudyPlanModule,
-    PaymentModule
+    PaymentModule,
   ],
   controllers: [
     AwsController,
     AppController,
     VideosummerizeController,
     LearningpathController,
-    
   ], 
   providers: [
     AppService,
+    RateLimitService,
     AwsService,
     VideosummerizeService,
     LearningpathService,
-    
-  ], // Removed UserService and AuthService
+    RateLimitService,
+  ],
 })
 export class AppModule {}
