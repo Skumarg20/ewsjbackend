@@ -53,10 +53,7 @@ import {
     @ValidateNested({ each: true })
     @Type(() => SubjectPriority)
     priorities?: SubjectPriority[];
-  
-    @IsEnum(TimeFrame)
-    @IsNotEmpty()
-    readonly timeFrame: TimeFrame = TimeFrame.DAILY;
+
   
     @IsBoolean()
     @IsNotEmpty()

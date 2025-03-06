@@ -15,22 +15,21 @@ export class NotesFolderController{
     @Get()
     async getAllFolder(@Request() req):Promise<Folder[]>{
         const userId=req.user.userId;
-        console.log(userId,req.user);
+      
         return await this.notesFolderService.getAllFolder(userId);
     }
 
     @Post()
     async createFolder(@Request() req,@Body() createFolderDto:CreateFolderDto):Promise<Folder>{
         const userId=req.user.userId;
-        console.log(req.user);
-        console.log(userId,createFolderDto,"this is in controller");
+       
         return this.notesFolderService.createNotesFolder(userId,createFolderDto);
     }
 
     @Delete(':id')
     async deleteFolder(@Request() req,@Param('id') id:'uuid'):Promise<Boolean>{
         const userId=req.user.userId;
-        console.log(id,userId,"this is deleting details")
+       
         return this.notesFolderService.deleteFolder(userId,id);
 
     }

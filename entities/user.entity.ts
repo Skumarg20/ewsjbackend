@@ -8,6 +8,8 @@ import { GroupMember } from './chatentities/group-member.entity';
 import { Todo } from './todo.entity';
 import { Folder } from './notesFolder';
 import { StudyPlan } from './studyplan.entity';
+import { PlanType } from 'enum/plan.enum';
+import { Payment } from './payment.entity';
 
 @Entity()
 export class User {
@@ -33,6 +35,22 @@ export class User {
 
   @Column()
   exam: string; 
+  
+  @Column({
+    type: 'enum',
+    enum: PlanType,
+    default: PlanType.FREE,
+  })
+  plan: PlanType;
+  
+  @Column({ nullable: true })
+  subscriptionStart: Date;
+
+  @Column({ nullable: true })
+  subscriptionDuration: number;
+
+  @Column({ nullable: true })
+  subscriptionEnd: Date;
 
   @OneToMany(() => Event, (event) => event.user, { cascade: true }) 
   events: Event[];
@@ -57,6 +75,8 @@ export class User {
   @ManyToMany(() => Group, (group) => group.members)
   @JoinTable()
   groups: Group[];
+  @OneToMany(() => Payment, (payment) => payment.user) // One user has many payments
+  payments: Payment[];
 
 
 }

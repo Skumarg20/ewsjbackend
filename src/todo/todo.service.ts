@@ -20,13 +20,21 @@ export class TodoService {
     return await this.todoRepository.save(newTodo);
   }
 
-  async findAll(userId:string): Promise<Todo[]> {
-    return await this.todoRepository
-    .createQueryBuilder('todo')
-    .where('todo.userId = :userId', { userId })
-    .getMany();
+  async findAll(userId: string, page: number = 1, limit: number = 1): Promise<{ todos: Todo[], total: number }> {
+    const queryBuilder = this.todoRepository
+      .createQueryBuilder('todo')
+      .where('todo.userId = :userId', { userId });
   
-
+ 
+    const skip = (page - 1) * limit; 
+    queryBuilder.skip(skip).take(limit);
+  
+    const [todos, total] = await queryBuilder.getManyAndCount();
+  
+    return {
+      todos, 
+      total, 
+    };
   }
 
   async findOne(id: string): Promise<Todo|null> {

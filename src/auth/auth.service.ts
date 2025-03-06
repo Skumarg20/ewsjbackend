@@ -4,6 +4,7 @@ import * as bcrypt from 'bcrypt';
 import { UserService } from '../users/users.service';
 import { User } from '../../entities/user.entity';
 import { SignUpDto } from './dto/signup.dto';
+import { PlanType } from 'enum/plan.enum';
 
 
 @Injectable()
@@ -17,33 +18,16 @@ export class AuthService {
 
 
   async signUp(signUpDto: SignUpDto): Promise<{ access_token: string }> {
-    const { username, email, fullname, phonenumber, password, studentclass, exam, address } = signUpDto;
+    const { username, email, fullname, phonenumber, password, studentclass, exam } = signUpDto;
 
-    // Validate required fields
-    if (!password) {
-      throw new BadRequestException('Password is required');
-    }
-    if (!username) {
-      throw new BadRequestException('Username is required');
-    }
-    if (!email) {
-      throw new BadRequestException('Email is required');
-    }
-    if (!phonenumber) {
-      throw new BadRequestException('Phone number is required');
-    }
-    if (!studentclass) {
-      throw new BadRequestException('Class is required');
-    }
-    if (!exam) {
-      throw new BadRequestException('Exam is required');
-    }
-    if (!address) {
-      throw new BadRequestException('Address is required');
-    }
-    if (!fullname) {
-      throw new BadRequestException('Full name is required');
-    }
+   
+    if (!password) throw new BadRequestException('Password is required');
+    if (!username) throw new BadRequestException('Username is required');
+    if (!email) throw new BadRequestException('Email is required');
+    if (!phonenumber) throw new BadRequestException('Phone number is required');
+    if (!studentclass) throw new BadRequestException('Class is required');
+    if (!exam) throw new BadRequestException('Exam is required');
+    if (!fullname) throw new BadRequestException('Full name is required');
 
     // Check for existing user
     const existingUser = await this.userService.findOneByEmail(email);
@@ -54,24 +38,45 @@ export class AuthService {
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create the user with all fields
+    // Assign FREE plan with 30-day subscription
+    const now = new Date();
+    const subscriptionDuration = 30; // 30 days for FREE plan
+    const subscriptionEnd = new Date(now);
+    subscriptionEnd.setDate(now.getDate() + subscriptionDuration);
+
+    // Create the user with FREE plan
     const user = await this.userService.createUser({
       username,
       email,
       fullname,
-      phonenumber, // Ensure this is passed
+      phonenumber,
       password: hashedPassword,
-      studentclass, // Ensure this is passed
+      class: studentclass,
       exam,
-      address, // Ensure this is passed
+      plan: PlanType.FREE, 
+      subscriptionStart: now,
+      subscriptionDuration,
+      subscriptionEnd,
     });
 
     if (!user) {
       throw new BadRequestException('User creation failed');
     }
 
-
-    const payload = { sub: user.id, username: user.username, email: user.email, fullname: user.fullname, phonenumber: user.phonenumber, studentclass: user.class, exam: user.exam};
+    // JWT payload
+    const payload = {
+      sub: user.id,
+      username: user.username,
+      email: user.email,
+      fullname: user.fullname,
+      phonenumber: user.phonenumber,
+      studentclass: user.class,
+      exam: user.exam,
+      plan: user.plan,
+      subscriptionStart: user.subscriptionStart,
+      subscriptionDuration: user.subscriptionDuration,
+      subscriptionEnd: user.subscriptionEnd,
+    };
 
     return {
       access_token: this.jwtService.sign(payload),
@@ -88,7 +93,7 @@ async validateUser(email: string, password: string): Promise<User | null> {
 }
 
   async signIn(user: User): Promise<{ access_token: string }> {
-    const payload = { sub: user.id, username: user.username,fullname: user.fullname, email: user.email, phonenumber: user.phonenumber, studentclass: user.class, exam: user.exam};
+    const payload = { sub: user.id, username: user.username,fullname: user.fullname, email: user.email, phonenumber: user.phonenumber, studentclass: user.class, exam: user.exam, plan: user.plan, subscriptionStart: user.subscriptionStart, subscriptionDuration: user.subscriptionDuration, subscriptionEnd: user.subscriptionEnd };
     return {
       access_token: this.jwtService.sign(payload),
     };

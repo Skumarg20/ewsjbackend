@@ -80,3 +80,6 @@ export class CreateStudyPlanDto  {
   })
   data: WeeklyPlanDataDto | TargetPlanDataDto | CustomPlanDataDto;
 }
+export class CustomStudyPlanDto{
+  content:string;
+}
