@@ -62,6 +62,10 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd ~/backend
+
+            # Create .env file from GitHub Secret
+            echo "${{ secrets.ENV_FILE }}" | base64 --decode > .env
+
             docker compose pull
             docker compose down
             docker compose up -d
