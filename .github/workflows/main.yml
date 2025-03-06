@@ -55,17 +55,21 @@ jobs:
           target: "~/backend"
 
       - name: SSH into EC2 and deploy
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd ~/backend
+  uses: appleboy/ssh-action@v0.1.10
+  with:
+    host: ${{ secrets.EC2_HOST }}
+    username: ${{ secrets.EC2_USER }}
+    key: ${{ secrets.EC2_SSH_KEY }}
+    script: |
+      cd ~/backend
 
-            # Create .env file from GitHub Secret
-            echo "${{ secrets.ENV_FILE }}" | base64 --decode > .env
+      # Create .env file from GitHub Secret
+      echo "${{ secrets.ENV_FILE }}" > .env
 
-            docker compose pull
-            docker compose down
-            docker compose up -d
+      # Debugging (Remove after verification)
+      cat .env
+      file .env
+
+      docker compose pull
+      docker compose down
+      docker compose up -d
