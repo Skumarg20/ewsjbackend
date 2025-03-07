@@ -32,6 +32,7 @@ import { RateLimitService } from './rate-limit/rate-limit.service';
     }), 
     RedisModule.forRootAsync({
       imports: [ConfigModule],
+    
       useFactory: (configService: ConfigService) => ({
         type: 'single',
         options: {
