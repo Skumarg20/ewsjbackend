@@ -47,6 +47,7 @@ import { RateLimitService } from './rate-limit/rate-limit.service';
           options: {
             host: redisHost,
             port: redisPort,
+            password: redisPassword || undefined, // Only include if set
           },
         };
       },
