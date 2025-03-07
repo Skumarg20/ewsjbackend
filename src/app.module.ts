@@ -32,16 +32,26 @@ import { RateLimitService } from './rate-limit/rate-limit.service';
     }), 
     RedisModule.forRootAsync({
       imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => {
+        const redisHost = configService.get<string>('REDIS_HOST', 'localhost');
+        const redisPort = configService.get<number>('REDIS_PORT', 6379);
+        const redisPassword = configService.get<string>('REDIS_PASSWORD', '');
     
-      useFactory: (configService: ConfigService) => ({
-        type: 'single',
-        options: {
-          host: configService.get<string>('REDIS_HOST', 'localhost'),
-          port: configService.get<number>('REDIS_PORT', 6379),
-        },
-      }),
+        console.log('🔴 Redis Configuration:');
+        console.log(`Host: ${redisHost}`);
+        console.log(`Port: ${redisPort}`);
+        console.log(`Password: ${redisPassword ? '********' : '(No Password)'}`);
+    
+        return {
+          type: 'single',
+          options: {
+            host: redisHost,
+            port: redisPort,
+          },
+        };
+      },
       inject: [ConfigService],
-    }),    
+    }),  
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
