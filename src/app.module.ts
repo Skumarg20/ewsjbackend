@@ -32,31 +32,19 @@ import { RateLimitService } from './rate-limit/rate-limit.service';
     }), 
     RedisModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => {
-        // Log Redis environment variables
-        console.log('REDIS_HOST:', configService.get<string>('REDIS_HOST', 'localhost'));
-        console.log('REDIS_PORT:', configService.get<number>('REDIS_PORT', 6379));
-
-        return {
-          type: 'single',
-          options: {
-            host: configService.get<string>('REDIS_HOST', 'localhost'),
-            port: configService.get<number>('REDIS_PORT', 6379),
-          },
-        };
-      }, 
+      useFactory: (configService: ConfigService) => ({
+        type: 'single',
+        options: {
+          host: configService.get<string>('REDIS_HOST', 'localhost'),
+          port: configService.get<number>('REDIS_PORT', 6379),
+        },
+      }), 
+     
       inject: [ConfigService],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
-        // Log database environment variables
-        console.log('DATABASE_HOST:', configService.get<string>('DATABASE_HOST', 'localhost'));
-        console.log('DATABASE_PORT:', configService.get<number>('DATABASE_PORT', 3306));
-        console.log('DATABASE_USERNAME:', configService.get<string>('DATABASE_USERNAME', 'root'));
-        console.log('DATABASE_PASSWORD:', configService.get<string>('DATABASE_PASSWORD', '8081'));
-        console.log('DATABASE_NAME:', configService.get<string>('DATABASE_NAME', 'ewsj'));
-
         const dbConfig = {
           type: 'mysql' as const, 
           host: configService.get<string>('DATABASE_HOST', 'localhost'),
