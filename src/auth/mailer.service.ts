@@ -23,7 +23,7 @@ export class MailerService {
 
   async sendPasswordResetEmail(email: string, otp: string) {
     await this.transporter.sendMail({
-      from: `"Your App" <${this.configService.get<string>('MAIL_USER')}>`,
+      from: `"CogeNist" <${this.configService.get<string>('MAIL_USER')}>`,
       to: email,
       subject: 'Password Reset Code',
       html: `
