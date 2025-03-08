@@ -5,6 +5,9 @@ import { UserService } from '../users/users.service';
 import { User } from '../../entities/user.entity';
 import { SignUpDto } from './dto/signup.dto';
 import { PlanType } from 'enum/plan.enum';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import Redis from 'ioredis';
+import { MailerService } from './mailer.service';
 
 
 @Injectable()
@@ -13,6 +16,8 @@ export class AuthService {
   constructor(
    private readonly userService:UserService,
     private readonly jwtService: JwtService,
+    private readonly mailerService:MailerService,
+    @InjectRedis() private readonly redis: Redis
      
   ) {}
 
@@ -98,4 +103,50 @@ async validateUser(email: string, password: string): Promise<User | null> {
       access_token: this.jwtService.sign(payload),
     };
   }
+  async requestPasswordReset(email: string) {
+    const user = await this.userService.findOneByEmail(email);
+    if (!user) throw new BadRequestException('User not found');
+  
+    // Generate a random 6-digit OTP
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+  
+    // Store the OTP in Redis with a 15-minute expiry
+    await this.redis.set(`reset:${email}`, resetCode, 'EX', 900);
+  
+    // Send OTP via email
+    await this.mailerService.sendPasswordResetEmail(email, resetCode);
+  
+    return { message: 'A 6-digit code has been sent to your email' };
+  }
+  async verifyResetCode(email: string, otp: string) {
+    const storedOtp = await this.redis.get(`reset:${email}`);
+    console.log(storedOtp,otp,"this is conosle");
+    if (!storedOtp || storedOtp !== otp) {
+      throw new UnauthorizedException('Invalid or expired code');
+    }
+  
+    return { message: 'OTP is valid', email };
+  }
+
+  async resetPassword(email: string, otp: string, newPassword: string) {
+    const storedOtp = await this.redis.get(`reset:${email}`);
+  
+    if (!storedOtp || storedOtp !== otp) {
+      throw new UnauthorizedException('Invalid or expired OTP');
+    }
+  
+    const user = await this.userService.findOneByEmail(email);
+    if (!user) throw new BadRequestException('User not found');
+  
+    // Hash the new password before saving
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await this.userService.updateUserPassword(email, hashedPassword);
+  
+    // Remove the OTP from Redis to prevent reuse
+    await this.redis.del(`reset:${email}`);
+  
+    return { message: 'Password reset successful' };
+  }
+  
+  
 }

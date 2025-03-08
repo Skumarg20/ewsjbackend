@@ -51,4 +51,12 @@ export class UserService {
 
     return this.userRepository.save(user);
   }
+  async updateUserPassword(email: string, newPassword: string): Promise<void> {
+    const user = await this.userRepository.findOne({ where: { email } });
+
+    if (!user) throw new NotFoundException('User not found');
+
+    user.password = newPassword; // Update the password
+    await this.userRepository.save(user); // Save updated user
+  }
 }
