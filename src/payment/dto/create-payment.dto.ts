@@ -27,4 +27,48 @@ export class CreatePaymentDto {
   plan: PlanType;
 }
 
+export class HindiMediumCourseDto{
+  @IsUUID()
+  orderId:string;
+
+  @IsNumber()
+  amount:number;
+
+  @IsEmail()
+  email:string;
+  
+}
+
+export class VerfiyCoursePaymentDto{
+  @IsString()
+  @IsNotEmpty()
+  razorpay_payment_id: string;
+
+  @IsString()
+  @IsNotEmpty()
+  razorpay_order_id: string;
+
+  @IsString()
+  @IsNotEmpty()
+  razorpay_signature: string;
+
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @IsString()
+  exam:string;
+  
+  @IsString()
+  message:string;
+
+  @IsString()
+  @IsNotEmpty()
+  phoneNumber:string;
+
+}
 

@@ -1,14 +1,16 @@
 import { Controller, Post, Body, HttpException, HttpStatus,Request, UseGuards } from "@nestjs/common";
 import { PaymentService } from "./payment.service";
-import { CreatePaymentDto } from "./dto/create-payment.dto";
+import { CreatePaymentDto, HindiMediumCourseDto, VerfiyCoursePaymentDto } from "./dto/create-payment.dto";
 import { JwtAuthGuard } from "src/auth/jwt.strategy";
+import { LocalAuthGuard } from "src/auth/local-auth.guard";
 
 @Controller("payments")
-@UseGuards(JwtAuthGuard)
+
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
   @Post("create-order")
+  @UseGuards(LocalAuthGuard)
   async createOrder(@Body() createPaymentDto: CreatePaymentDto,@Request() req) {
     const userId=req.user.userId;
     console.log(req.user,"this is user");
@@ -22,6 +24,7 @@ export class PaymentController {
   }
 
   @Post("verify-payment")
+  @UseGuards(LocalAuthGuard)
   async verifyPayment(@Body() body: { razorpayOrderId: string; razorpayPaymentId: string; razorpaySignature: string }) {
     console.log(body,"this is veryiypayent");
     try {
@@ -37,4 +40,14 @@ export class PaymentController {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
+
+  @Post('create-order-hindimedium')
+  async createOrderHindiMediumCourse(@Body() createHindiMediumCourseDto:HindiMediumCourseDto){
+    return await this.paymentService.createOrderHindiMediumCourse(createHindiMediumCourseDto);
+  }
+  @Post('verify-hindimedium-payment')
+  async verifyPaymentHindiMediumCourse(@Body() verfiyHindimediumCourseDto:VerfiyCoursePaymentDto){
+    return await this.paymentService.verifyPaymentHindiMediumCourse(verfiyHindimediumCourseDto);
+  }
+
 }
